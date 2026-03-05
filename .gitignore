@@ -1,0 +1,21 @@
+#package structure
+logs/*
+!logs/.gitkeep
+!data/.gitkeep
+data/
+!data/acts/*
+!data/raw/format_1.pkl
+results/models/*
+!results/models/.gitkeep
+__pycache__
+.DS_Store
+#virtual environments
+venv*/
+.venv*/
+keys.yaml
+figures_old/
+results_old/
+notebooks/checking_nb.ipynb
+#package metadata
+*.egg-info/
+.vscode/
