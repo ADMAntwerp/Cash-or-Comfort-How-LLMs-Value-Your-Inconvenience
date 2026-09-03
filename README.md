@@ -39,7 +39,7 @@ $ source .venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-4. How to use:
+How to use:
 
     We use a ```config/config_file.yaml``` to configurate the experiments. Repository consist of three modules: 
     * ```tradeoff_data``` - to generate the LLM's trade-offs data.
