@@ -1,6 +1,7 @@
 # Cash or Comfort? How LLMs Value Your Inconvenience
 
-Mateusz Cedro, Timour Ichmoukhamedov, Sofie Goethals, Yifan He, James Hinns, David Martens,
+Mateusz Cedro, Timour Ichmoukhamedov, Sofie Goethals, Yifan He, James Hinns, David Martens
+
 University of Antwerp, Belgium, 2026
 
 Communications of the ACM: [Cash or Comfort? How LLMs Value Your Inconvenience](https://dl.acm.org/doi/10.1145/3799434)
