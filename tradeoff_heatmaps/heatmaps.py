@@ -14,7 +14,7 @@ def make_tradeoff_heatmaps(args):
             continue
         print(f"\t{key}: {value}")
 
-    data_dir = Path("results") / args["prompt_type"] / args["experiment_name"]
+    data_dir = Path(args["output_dir"]) / args["prompt_type"] / args["experiment_name"]
     for fname in ("data_log.pkl", "data.pkl"):
         p = data_dir / fname
         if p.exists():

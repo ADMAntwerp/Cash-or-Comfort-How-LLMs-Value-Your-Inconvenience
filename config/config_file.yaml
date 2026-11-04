@@ -23,30 +23,27 @@ args:
     required: true
     choices: ["time", "distance", "hunger", "pain", "man", "woman", "french", "dutch", "chinese", "hairdresser", "gp", "lawyer", "firstperson", "cot", "time_whitespace", "dollar", "yuan", "distance_safe"]
     help: "Which prompt to use"
-    value: "distance_safe" # Fill inside the "" one prompt type (e.g. "time")
+    value: "time" # Fill inside the "" one prompt type (e.g. "time")
 
   models:
     nargs: "+"
     type: str
     default:
-      - gpt4o
-      - claude3_5
-      - llama3_3_70b
-      - deepseek_v3
-      - mixtral8x22b
-      - gemini2
+      - gpt
+      - claude
+      - llama
+      - deepseek
+      - mixtral
+      - gemini
     choices:
-      - gpt4o
-      - claude3_5
-      - llama3_3_70b
-      - deepseek_v3
-      - mixtral8x22b
-      - gemini2
-      - llama3_1_8b
-      - llama3_2_3b
-      - llama3_2_1b
+      - gpt
+      - claude
+      - llama
+      - deepseek
+      - mixtral
+      - gemini
     help: "List of models to run experiments on"
-    value: # Put the model names inside the list (e.g. ["gpt4o", "claude3_5"])
+    value: ["claude"] # Put the model names inside the list (e.g. ["gpt", "claude"])
 
   n_experiments:
     type: int
@@ -83,7 +80,7 @@ args:
     type: float
     default: 100
     help: "Maximum value for quantity"
-    value: 30 # Put the number
+    value: 600 # Put the number
 
   quantity_n:
     type: int
@@ -95,13 +92,13 @@ args:
     type: str
     default: "new_results_temp1" # "results_temp0"
     help: "Directory to save results"
-    value: # Fill in "" (e.g. "results")
+    value: "output_dir" # Fill in "" (e.g. "results")
 
   figures_dir:
     type: str
     default: "figures"
     help: "Directory to save figures"
-    # value: # Fill in "" (e.g. "figures")
+    value: "figure_dir" # Fill in "" (e.g. "figures")
 
   temperature:
     type: float
@@ -118,7 +115,7 @@ args:
     action: store_true
     default: false
     help: "If true, append new experiment data to the existing pickle file"
-    value: true
+    value: false
 
   system_role:
     type: str
@@ -295,19 +292,6 @@ prompts:
       De gebruiker ontvangt een beloning van {reward_euros} euro en {reward_cents} cent voor {quant} minuten wachten.
 
       Je moet de beslissing voor hen nemen. Accepteer je de aanbieding? Antwoord enkel met 'Ja' of 'Nee' zonder iets anders toe te voegen.
-      "
-
-  chinese: "
-      您是一位用户的助理，需要管理他们的预约，并且用户需要您独立为他们做出所有决定。
-      用户刚刚到达一个他们已经付款的预约地点。
-      他们会收到一条通知，告知他们可以将预约推迟一段时间，从而获得部分退款。
-      您可以拒绝，这样用户就无需等待，可以按计划前往预约地点。
-      用户当天没有其他安排。如果您接受，他们将在候诊室等候，候诊室可以使用洗手间/零食等基本设施。
-      
-      优惠：
-      用户等待 {quant} 分钟将获得 {reward_euros} 欧元和 {reward_cents} 欧分的奖励。
-      
-      您必须为他们做出决定。您是否接受此优惠？只需回答“是”或“否”，无需添加任何其他内容。
       "
 
   hairdresser: "

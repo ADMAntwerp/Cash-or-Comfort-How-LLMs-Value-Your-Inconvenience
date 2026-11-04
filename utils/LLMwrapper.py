@@ -1,11 +1,21 @@
 from abc import ABC, abstractmethod
-from openai import OpenAI
+from httpx import options
+from joblib import logger
+from openai import OpenAI, APIConnectionError, APIStatusError, NotFoundError
 from openai._types import NOT_GIVEN
 from llamaapi import LlamaAPI
 from google import genai
 from google.genai import types
 import anthropic
 import json
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+
+log = logging.getLogger(__name__)
 
 
 class LLMWrapper(ABC):
@@ -27,31 +37,80 @@ class OpenRouterApi(LLMWrapper):
         model,
         system_role="You are an AI assistant. You make good decisions on behalf of the human",
         temperature=0.6,
+        providers=None,
+        quantization_tiers=None,
+        allow_provider_fallbacks=False,
     ):
         self.system_role = system_role
         self.model = model
         self.temperature = temperature
+        self.providers = providers
+        self.quantization_tiers = ([list(t) for t in quantization_tiers] if quantization_tiers else [None])
+        self.allow_provider_fallbacks = allow_provider_fallbacks
 
         self.client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
         self.messages = []
 
-    def generate_response(self, prompt, history=[], stream=False):
-        messages = history + [
-            {"role": "system", "content": self.system_role},
-            {"role": "user", "content": prompt},
-        ]
+    def _provider_options(self, quantizations):
+        options = {}
+        if quantizations:
+            options["quantizations"] = quantizations
+        if self.providers:
+            options["order"] = self.providers
+            options["allow_fallbacks"] = self.allow_provider_fallbacks
+        return options
 
-        completion = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-            stream=stream,
+    @staticmethod
+    def _is_retryable(error):
+        """Errors where trying the next quantization tier makes sense."""
+        if isinstance(error, (NotFoundError, APIConnectionError)):
+            return True
+        if isinstance(error, APIStatusError):
+            return error.status_code == 429 or error.status_code >= 500
+        return False
+
+    def generate_response(self, prompt, history=None, stream=False):
+        history = history or []
+        messages = (
+            [{"role": "system", "content": self.system_role}]
+            + history
+            + [{"role": "user", "content": prompt}]
         )
 
-        if stream:
+        last_error = None
+        for quantizations in self.quantization_tiers:
+            options = self._provider_options(quantizations)
+            kwargs = {"extra_body": {"provider": options}} if options else {}
+
+            try:
+                completion = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=self.temperature,
+                    stream=stream,
+                    **kwargs,
+                )
+            except Exception as e:
+                if not self._is_retryable(e):
+                    raise
+                log.warning(
+                    "Request failed for quantizations=%s. Trying next tier.",
+                    quantizations,
+                )
+                last_error = e
+                continue
+
+            if not stream:
+                log.info(
+                    "Served by provider=%s model=%s quantizations=%s)",
+                    getattr(completion, "provider", None),
+                    completion.model,
+                    quantizations,
+                )
+                return completion.choices[0].message.content
             return completion
-        else:
-            return completion.choices[0].message.content
+
+        raise last_error
 
 
 class GptApi(LLMWrapper):
@@ -62,6 +121,8 @@ class GptApi(LLMWrapper):
         model,
         system_role="You are an AI assistant. You make good decisions on behalf of the human",
         temperature=0.6,
+        providers=None,
+        quantization_tiers=None,
     ):
         self.system_role = system_role
         self.model = model
@@ -77,6 +138,13 @@ class GptApi(LLMWrapper):
         ]
         completion = self.client.chat.completions.create(
             model=self.model, messages=messages, temperature=self.temperature
+        )
+
+        log.info(
+            "Served by provider=openai requested_model=%s served_model=%s id=%s",
+            self.model,
+            completion.model,
+            completion.id,
         )
 
         return completion.choices[0].message.content

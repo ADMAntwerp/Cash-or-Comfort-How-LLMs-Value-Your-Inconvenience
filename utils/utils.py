@@ -214,10 +214,14 @@ def make_heat_maps(args, df, model_name):
         df["output_numeric"] = df["output"].map(
             lambda x: (
                 1
-                if re.search(r"\byes\b", x.strip(), flags=re.IGNORECASE)
+                if re.search(
+                    r"\byes\b", x.strip(), flags=re.IGNORECASE
+                )
                 else (
                     0
-                    if re.search(r"\bno\b", x.strip(), flags=re.IGNORECASE)
+                    if re.search(
+                        r"\bno\b", x.strip(), flags=re.IGNORECASE
+                    )
                     else np.nan
                 )
             )
@@ -230,10 +234,9 @@ def make_heat_maps(args, df, model_name):
         piv = (
             g.pivot(index="reward_value", columns="quantity", values="output_numeric")
             .reindex(index=reward_values, columns=quants)
-            .fillna(0)
         )
         slices.append(piv.values)
-    mean_array = np.mean(np.stack(slices, axis=0), axis=0)
+    mean_array = np.nanmean(np.stack(slices, axis=0), axis=0)
     quant_edges = compute_edges(quants)
 
     if args["log_scale_money"]:
@@ -259,17 +262,34 @@ def make_heat_maps(args, df, model_name):
         XX, YY, mean_array, shading="auto", cmap="viridis", vmin=0, vmax=1
     )
     cbar = fig.colorbar(pcm, ax=ax)
-    cbar.set_label("Probability of Yes")
+    cbar.set_label("Probability of Yes", fontsize=24)
+    cbar.ax.tick_params(labelsize=18)
 
-    ax.set_xticks(quants)
+    ax.set_xticks([0, 200, 400, 600])
     ax.xaxis.set_major_formatter(ticker.FormatStrFormatter("%d"))
-    ax.set_xlabel(args["x_labels"][args["prompt_type"]])
+    ax.set_xlabel(args["x_labels"][args["prompt_type"]], fontsize=24)
+    ax.tick_params(axis='x', labelsize=18)
 
-    ax.set_yticks(y_ticks)
-    ax.set_yticklabels(y_tick_labels)
-    ax.set_ylabel(ylabel)
+    powers = [-1, 0, 1, 2, 3]
+    ax.set_yticks(powers)
+    ax.set_yticklabels([f"$10^{{{p}}}$" for p in powers], fontsize=18)
+    ax.set_ylabel(ylabel, fontsize=24)
+    ax.tick_params(axis='y', labelsize=18)
 
-    ax.set_title(model_name)
+    if model_name == "gpt":
+        title = "gpt-6.1-sol"
+    elif model_name == "claude":
+        title = "claude-sonnet-5-5"
+    elif model_name == "llama":
+        title = "llama-4-maverick"
+    elif model_name == "mixtral":
+        title = "mistral-medium-3-5"
+    elif model_name == "gemini":
+        title = "gemini-3.5-flash-lite"
+    elif model_name == "deepseek":
+        title = "deepseek-v4.1-flash-1017"
+
+    # ax.set_title(title)
     plt.tight_layout()
 
     plot_dir = os.path.join(
@@ -277,7 +297,7 @@ def make_heat_maps(args, df, model_name):
     )
     os.makedirs(plot_dir, exist_ok=True)
     suffix = "_log" if args["log_scale_money"] else ""
-    plot_file = os.path.join(plot_dir, f"{model_name}{suffix}.png")
+    plot_file = os.path.join(plot_dir, f"{title}.png")
     plt.savefig(plot_file, dpi=300)
     plt.close(fig)
 
@@ -371,7 +391,6 @@ def combine_charts(args, plot_dir, max_cols=3):
     prompt = args["prompt_type"]
     log_tag = "_log" if args.get("log_scale_money") else ""
     plt.suptitle(f"Heatmaps of {prompt}/money trade-off scenario", fontsize=20)
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     out_name = f"{plot_dir}/{prompt}_heatmaps_combined{log_tag}.png"
     plt.savefig(out_name, dpi=300)
@@ -390,59 +409,48 @@ def initialize_models(args):
     args = load_config()
     keys_dict = args.get("api_keys", {})
 
-    with open("keys.yaml") as f:
-        keys_dict = yaml.safe_load(f)
-
     model_configs = {
-        "gpt4o": {
+        "gpt": {
             "class": GptApi,
-            "api_key": keys_dict["API_keys"]["OpenAI"],
-            "model": "gpt-4o-2024-08-06",
+            "api_key": keys_dict["OpenAI"],
+            "model": "gpt-6.1-sol",
+            "providers": None,
+            "quantization_tiers": None
         },
-        # "claude3_5": {
-        #     "class": ClaudeApi,
-        #     "api_key": keys_dict["API_keys"]["Claude"],
-        #     "model": "claude-3-5-sonnet-20241022",
-        # },
-        "claude3_5": {
+        "claude": {
             "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "anthropic/claude-3.5-sonnet-20241022",
+            "api_key": keys_dict["OpenRouter"],
+            "model": "anthropic/claude-sonnet-5-5",
+            "providers": ["google-vertex/global"],
+            "quantization_tiers": None
         },
-        "llama3_3_70b": {
+        "llama": {
             "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "meta-llama/llama-3.3-70b-instruct",
+            "api_key": keys_dict["OpenRouter"],
+            "model": "meta-llama/llama-4-maverick",
+            "providers": ["parasail/fp8"],
+            "quantization_tiers": [["bf16", "fp16"], ["fp8"]]
         },
-        "mixtral8x22b": {
+        "mixtral": {
             "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "mistralai/mixtral-8x22b-instruct",
+            "api_key": keys_dict["OpenRouter"],
+            "model": "mistralai/mistral-medium-3-5",
+            "providers": ["mistral/zdr"],
+            "quantization_tiers": None
         },
-        "gemini2": {
-            "class": GeminiApi,
-            "api_key": keys_dict["API_keys"]["Google"],
-            "model": "gemini-2.0-flash-001",
-        },
-        "deepseek_v3": {
+        "gemini": {
             "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "deepseek/deepseek-chat-v3-0324",
+            "api_key": keys_dict["OpenRouter"],
+            "model": "google/gemini-3.5-flash-lite",
+            "providers": ["google-vertex/global"],
+            "quantization_tiers": None
         },
-        "llama3_1_8b": {
+        "deepseek": {
             "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "meta-llama/llama-3.1-8b-instruct",
-        },
-        "llama3_2_3b": {
-            "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "meta-llama/llama-3.2-3b-instruct",
-        },
-        "llama3_2_1b": {
-            "class": OpenRouterApi,
-            "api_key": keys_dict["API_keys"]["OpenRouter"],
-            "model": "meta-llama/llama-3.2-1b-instruct",
+            "api_key": keys_dict["OpenRouter"],
+            "model": "deepseek/deepseek-v4.1-flash-1017",
+            "providers": ["inference-net/fp8"],
+            "quantization_tiers": [["bf16", "fp16"], ["fp8"]]
         },
     }
 
@@ -455,6 +463,8 @@ def initialize_models(args):
                 model=config["model"],
                 system_role=args["system_role"],
                 temperature=args["temperature"],
+                providers=config["providers"],
+                quantization_tiers=config["quantization_tiers"],
             )
 
         else:
