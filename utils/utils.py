@@ -979,7 +979,7 @@ def retrieve_latest_model_open_router(
 
     return model_id, prices
 
-
+"""
 def heatmap_exists_for_current_month(api_key):
 
     api = HfApi(token=api_key)
@@ -1017,3 +1017,4 @@ def push_image_to_huggingface(api_key, path):
         repo_type=REPO_TYPE,
         commit_message="Update heatmap",
     )
+"""
