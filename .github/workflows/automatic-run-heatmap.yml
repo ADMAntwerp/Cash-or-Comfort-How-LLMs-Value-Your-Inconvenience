@@ -16,7 +16,7 @@ jobs:
       run_is_needed: ${{ steps.check.outputs.run_is_needed }}
     timeout-minutes: 350
     environment: production
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/feature/workflow'
 
     steps:
       - name: Check out code
@@ -45,7 +45,7 @@ jobs:
 
   gpt:
     needs: check
-    if: github.ref == 'refs/heads/main' && needs.check.outputs.run_is_needed == 'true'
+    if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
@@ -84,7 +84,7 @@ jobs:
   
   claude:
     needs: gpt
-    if: github.ref == 'refs/heads/main' && needs.check.outputs.run_is_needed == 'true'
+    if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
@@ -123,7 +123,7 @@ jobs:
 
   llama:
     needs: claude
-    if: github.ref == 'refs/heads/main' && needs.check.outputs.run_is_needed == 'true'
+    if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
@@ -162,7 +162,7 @@ jobs:
 
   mixtral:
     needs: llama
-    if: github.ref == 'refs/heads/main' && needs.check.outputs.run_is_needed == 'true'
+    if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
@@ -201,7 +201,7 @@ jobs:
 
   gemini:
     needs: mixtral
-    if: github.ref == 'refs/heads/main' && needs.check.outputs.run_is_needed == 'true'
+    if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
@@ -240,7 +240,7 @@ jobs:
 
   deepseek:
     needs: gemini
-    if: github.ref == 'refs/heads/main' && needs.check.outputs.run_is_needed == 'true'
+    if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
@@ -279,7 +279,7 @@ jobs:
 
   upload_to_huggingface:
     needs: deepseek
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/feature/workflow'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     environment: production
