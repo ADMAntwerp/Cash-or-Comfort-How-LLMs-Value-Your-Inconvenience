@@ -5,9 +5,12 @@ Script to execute the experiments and return the .pkl data.
 import os
 import pickle
 from utils.utils import initialize_models, money_quantity_trade_off, compute_experiments
+import logging
+
+log = logging.getLogger(__name__)
 
 
-def tradeoff_data(args):
+def tradeoff_data(args, model = None, model_version=None, github_actions=False):
     """
     Main function to generate LLM's trade-off data.
     """
@@ -18,7 +21,7 @@ def tradeoff_data(args):
             continue
         print(f"\t{key}: {value}")
 
-    model_dict = initialize_models(args)
+    model_dict = initialize_models(args, model=model, model_version=model_version, github_actions=github_actions)
     money_array, quant_array = money_quantity_trade_off(args)
 
     os.makedirs(args["output_dir"], exist_ok=True)
@@ -65,3 +68,4 @@ def tradeoff_data(args):
         print(f"Results for {model_name} saved to {output_file}")
 
     print("\nExperiments finished successfully!")
+    return experiment_outcomes

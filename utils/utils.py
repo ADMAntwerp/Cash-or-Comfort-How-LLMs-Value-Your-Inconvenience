@@ -21,16 +21,17 @@ from urllib3.exceptions import MaxRetryError, NewConnectionError
 from sklearn.linear_model import LogisticRegression
 from utils.LLMwrapper import *
 
+import requests
+from datetime import datetime, timezone
+import logging
+
 
 def load_config(path: Path = Path("config/config_file.yaml")) -> dict:
     """
     Load and validate configuration from a single YAML file.
     """
-    _TYPE_MAP = {
-        "str": str,
-        "int": int,
-        "float": float,
-    }
+    _TYPE_MAP = {"str": str, "int": int, "float": float}
+
     cfg = yaml.safe_load(path.open())
     args = {}
 
@@ -398,7 +399,7 @@ def combine_charts(args, plot_dir, max_cols=3):
     plt.close(fig)
 
 
-def initialize_models(args):
+def initialize_models(args, model=None, model_version=None, github_actions=False):
     """
     Initialize LLM models based on command line arguments.
     Args:
@@ -453,6 +454,13 @@ def initialize_models(args):
             "quantization_tiers": [["bf16", "fp16"], ["fp8"]]
         },
     }
+
+    log.info(f"Models to run: {model_configs}")
+    
+    if github_actions:
+        model_configs[model]["model"] = model_version
+
+    log.info(f"Models to run: {model_configs}")
 
     model_dict = {}
     for model_name in args["models"]:
@@ -793,3 +801,219 @@ def LR_values_per_quantity_table(args):
     print("\nTrade‑off Table (requested quantities)")
     print(tradeoff_df.to_string(index=False))
     print(f"\nSaved to: {global_table_path}")
+
+
+def retrieve_latest_model(model_name, api_key):
+
+    if model_name == "deepseek":
+
+        log.info(f"Retrieving latest model Open Router - Deepseek...")
+
+        model_version, price = retrieve_latest_model_open_router(
+                api_key=api_key,
+                query="deepseek",
+                prefix="deepseek/",
+                version_pattern=r"-v(\d+(?:\.\d+)*)",
+                exclude=["batch"],
+                max_input_per_m=5,
+                max_output_per_m=15,
+            )
+        
+        log.info(f"Latest model Open Router - Deepseek: {model_version}")
+        log.info(f"Pricing per mio tokens: {price}")
+
+    elif model_name == "claude":
+
+        model_version, price = retrieve_latest_model_open_router(
+                api_key=api_key,
+                query="claude-sonnet",
+                prefix="anthropic/",
+                version_pattern=r"claude-sonnet-(\d+(?:\.\d+)*)",
+                exclude=["batch"],
+                max_input_per_m=5,
+                max_output_per_m=15,
+            )
+        
+        log.info(f"Latest model Open Router - Claude: {model_version}")
+        log.info(f"Pricing per mio tokens: {price}")
+
+
+    elif model_name == "llama":
+
+        model_version, price = retrieve_latest_model_open_router(
+                api_key=api_key,
+                query="llama",
+                prefix="meta-llama/",
+                version_pattern=r"llama-(\d+(?:\.\d+)*)-",
+                exclude=["batch"],
+                max_input_per_m=5,
+                max_output_per_m=15,
+            )
+        
+        log.info(f"Latest model Open Router - Llama: {model_version}")
+        log.info(f"Pricing per mio tokens: {price}")
+
+
+    elif model_name == "mistral":
+
+        model_version, price = retrieve_latest_model_open_router(
+                api_key=api_key,
+                query="mistral-medium",
+                prefix="mistralai/",
+                version_pattern=r"mistral-medium-(\d+(?:[.-]\d{1,2})?)",
+                exclude=["batch"],
+                max_input_per_m=5,
+                max_output_per_m=15,
+            )
+        
+        log.info(f"Latest model Open Router - Mistral: {model_version}")
+        log.info(f"Pricing per mio tokens: {price}")
+
+
+    elif model_name == "gemini":
+
+        model_version, price = retrieve_latest_model_open_router(
+                api_key=api_key,
+                query="gemini",
+                prefix="google/",
+                version_pattern=r"gemini-(\d+(?:\.\d+)*)",
+                exclude=["lite", "image", "tts", "audio"],
+                max_input_per_m=5,
+                max_output_per_m=15,
+            )
+        
+        log.info(f"Latest model Open Router - Gemini: {model_version}")
+        log.info(f"Pricing per mio tokens: {price}")
+
+    elif model_name == "gpt":
+
+        model_version, price = retrieve_latest_model_open_router(
+                api_key=api_key,
+                query="gpt",
+                prefix="openai/",
+                version_pattern=r"gpt-(\d+(?:[.-]\d{1,2})?)-sol",
+                exclude=["batch"],
+                max_input_per_m=5,
+                max_output_per_m=15,
+            )
+        
+        log.info(f"Latest model Open Router - GPT: {model_version}")
+        log.info(f"Pricing per mio tokens: {price}")
+
+    return model_version
+
+
+def _per_million(value):
+    try:
+        return float(value) * 1_000_000
+    except (TypeError, ValueError):
+        return None
+
+
+def retrieve_latest_model_open_router(
+        api_key, 
+        query, 
+        prefix, 
+        version_pattern, 
+        exclude=[], 
+        max_input_per_m=None,
+        max_output_per_m=None):
+    
+    version_re = re.compile(version_pattern)
+
+    response = requests.get(
+        "https://openrouter.ai/api/v1/models",
+        params={"sort": "newest", "q": query},
+        headers={"Authorization": f"Bearer {api_key}"},
+        timeout=30,
+    )
+    response.raise_for_status()
+
+    candidates = []
+    candidates_too_expensive = []
+
+    for m in response.json()["data"]:
+        model_id = m["id"]
+        if not model_id.startswith(prefix) or model_id.endswith(":free"):
+            continue
+
+        if any(word in model_id.lower() for word in exclude):
+            continue
+
+        match = version_re.search(model_id)
+        if not match:
+            continue
+
+        parts = [int(p) for p in re.split(r"[.-]", match.group(1))]
+        version = tuple(parts + [0] * (3 - len(parts)))
+
+        pricing = m.get("pricing") or {}
+        prices = {
+            "input_per_m": _per_million(pricing.get("prompt")),
+            "output_per_m": _per_million(pricing.get("completion")),
+        }
+
+        if max_input_per_m is not None and (
+            prices["input_per_m"] is None or prices["input_per_m"] > max_input_per_m
+        ):
+            candidates_too_expensive.append((model_id, prices))
+            continue
+        if max_output_per_m is not None and (
+            prices["output_per_m"] is None or prices["output_per_m"] > max_output_per_m
+        ):
+            candidates_too_expensive.append((model_id, prices))
+            continue
+
+        candidates.append((version, model_id, prices))
+
+    log.info(f"Candidates: {candidates}")
+    log.info(f"Candidates too expensive: {candidates_too_expensive}")
+
+    if not candidates:
+        msg = f"No model found for query '{query}' within the price limits."
+        if candidates_too_expensive:
+            msg += f" Skipped (over budget or price unknown): {candidates_too_expensive}"
+        raise RuntimeError(msg)
+
+    _, model_id, prices = max(candidates, key=lambda c: c[0])
+
+    return model_id, prices
+
+
+def heatmap_exists_for_current_month(api_key):
+
+    api = HfApi(token=api_key)
+    prefix = f"heatmap_{datetime.now(timezone.utc).strftime('%Y-%m')}-"
+
+    log.info(f"Checking Hugging Face repo_id={REPO_ID} repo_type={REPO_TYPE} for prefix {prefix}")
+
+    try:
+        files = api.list_repo_files(repo_id=REPO_ID, repo_type=REPO_TYPE)
+    except RepositoryNotFoundError:
+        return False
+
+    matches = [f for f in files if f.startswith(prefix)]
+
+    if matches:
+        log.info(f"Found heatmap(s) for this month: {matches}")
+    else:
+        log.info(f"No heatmap found with prefix {prefix}")
+
+    return bool(matches)
+
+
+def push_image_to_huggingface(api_key, path):
+
+    api = HfApi(token=api_key)
+
+    api.create_repo(repo_id=REPO_ID, repo_type=REPO_TYPE, private=False, exist_ok=True)
+
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M")
+
+    _ = api.upload_file(
+        path_or_fileobj=path, 
+        path_in_repo=f"heatmap_{stamp}.png",
+        repo_id=REPO_ID,
+        repo_type=REPO_TYPE,
+        commit_message="Update heatmap",
+    )

@@ -7,7 +7,7 @@ from pathlib import Path
 from utils.utils import make_heat_maps, combine_charts
 
 
-def make_tradeoff_heatmaps(args):
+def make_tradeoff_heatmaps(args, state):
     print("\nArguments in use:")
     for key, value in args.items():
         if key in ("api_keys", "prompt", "x_labels", "trade_off_values"):
@@ -23,9 +23,12 @@ def make_tradeoff_heatmaps(args):
     else:
         raise FileNotFoundError(f"No .pkl file found in {data_dir}")
 
-    with open(data_path, "rb") as f:
-        data = pickle.load(f)
-    print(f"Loading data from: {data_path}")
+    if not state:
+        with open(data_path, "rb") as f:
+            data = pickle.load(f)
+        print(f"Loading data from: {data_path}")
+    else:
+        data = state
 
     for model in data.keys():
         df = data[model]

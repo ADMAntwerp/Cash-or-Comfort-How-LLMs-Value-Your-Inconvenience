@@ -11,7 +11,7 @@ def main():
     args = load_config()
 
     # Run experiments
-    tradeoff_data(args)
+    _ = tradeoff_data(args)
 
 
 if __name__ == "__main__":
