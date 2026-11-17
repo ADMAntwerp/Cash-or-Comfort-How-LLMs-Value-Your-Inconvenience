@@ -81,6 +81,8 @@ def run():
 
     args = load_config()
 
+    log.info(f"Config loaded: {args}")
+
     log.info(f"This job runs model: {ci_args.model}")
 
     state = load_state(ci_args.input)
