@@ -61,7 +61,8 @@ def run_model(name, cfg):
 def check_if_run_is_needed():
     log.info("check_if_run_is_needed() started")
     
-    run_is_needed = not heatmap_exists_for_current_month(api_key_huggingface)
+    # run_is_needed = not heatmap_exists_for_current_month(api_key_huggingface)
+    run_is_needed = True
 
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:
         f.write(f"run_is_needed={'true' if run_is_needed else 'false'}\n")
