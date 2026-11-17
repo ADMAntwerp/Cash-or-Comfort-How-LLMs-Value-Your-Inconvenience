@@ -81,9 +81,9 @@ def run():
 
     args = load_config()
 
-    log.info(f"Config loaded: {args["api_keys"]}")
-
-    log.info(f"This job runs model: {ci_args.model}")
+    if github_actions:
+        args["api_keys"]["open_router"] = api_key_open_router
+        args["api_keys"]["huggingface"] = api_key_huggingface
 
     state = load_state(ci_args.input)
     log.info("Loaded state with models: %s", list(state))
