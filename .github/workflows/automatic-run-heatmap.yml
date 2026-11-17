@@ -37,7 +37,7 @@ jobs:
 
       - name: Perform check to see if a full run is needed
         id: check
-        run: python -u -m src.main check
+        run: python -u -m main check
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
