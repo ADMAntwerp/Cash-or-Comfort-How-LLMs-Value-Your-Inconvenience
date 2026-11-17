@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from datetime import date
 from tradeoff_data.tradeoff_data import tradeoff_data
-from utils.utils import retrieve_latest_model, load_config, heatmap_exists_for_current_month, push_image_to_huggingface
+from utils.utils import retrieve_latest_model, load_config
 from tradeoff_heatmaps.heatmaps import make_tradeoff_heatmaps
 
 
