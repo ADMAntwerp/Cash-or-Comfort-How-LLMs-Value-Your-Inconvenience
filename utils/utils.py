@@ -26,6 +26,12 @@ import requests
 from datetime import datetime, timezone
 import logging
 
+from huggingface_hub import HfApi
+from huggingface_hub.utils import RepositoryNotFoundError
+
+REPO_ID = "RafaelMichiels/VisualsTest"
+REPO_TYPE = "dataset"
+
 
 def load_config(path: Path = Path("config/config_file.yaml")) -> dict:
     """
@@ -398,6 +404,8 @@ def combine_charts(args, plot_dir, max_cols=3):
     plt.savefig(out_name, dpi=300)
     print("Combined chart saved to", out_name)
     plt.close(fig)
+
+    return out_name
 
 
 def initialize_models(args, model_name=None, model_version=None, github_actions=False):
@@ -982,7 +990,7 @@ def retrieve_latest_model_open_router(
 
     return model_id, prices
 
-"""
+
 def heatmap_exists_for_current_month(api_key):
 
     api = HfApi(token=api_key)
@@ -1005,7 +1013,7 @@ def heatmap_exists_for_current_month(api_key):
     return bool(matches)
 
 
-def push_image_to_huggingface(api_key, path):
+def push_image_to_huggingface(out_dir, api_key):
 
     api = HfApi(token=api_key)
 
@@ -1014,10 +1022,9 @@ def push_image_to_huggingface(api_key, path):
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M")
 
     _ = api.upload_file(
-        path_or_fileobj=path, 
+        path_or_fileobj=out_dir, 
         path_in_repo=f"heatmap_{stamp}.png",
         repo_id=REPO_ID,
         repo_type=REPO_TYPE,
         commit_message="Update heatmap",
     )
-"""

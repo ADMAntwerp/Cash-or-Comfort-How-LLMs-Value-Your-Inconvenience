@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from datetime import date
 from tradeoff_data.tradeoff_data import tradeoff_data
-from utils.utils import retrieve_latest_model, load_config
+from utils.utils import retrieve_latest_model, load_config, push_image_to_huggingface
 from tradeoff_heatmaps.heatmaps import make_tradeoff_heatmaps
 
 
@@ -101,8 +101,12 @@ def run():
     log.info("Loaded state with models: %s", list(state))
 
     if ci_args.final:
-        make_tradeoff_heatmaps(args, state=state)
-        push_image_to_huggingface(api_key_huggingface)
+        out_dir = make_tradeoff_heatmaps(args, state=state)
+
+        log.info(f"Output directory for heatmaps: {out_dir}")
+
+        push_image_to_huggingface(out_dir, api_key_huggingface)
+
         log.info("Final job completed.")
         return
 

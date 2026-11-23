@@ -11,7 +11,7 @@ def main():
     args = load_config()
 
     # Make Heatmaps
-    make_tradeoff_heatmaps(args)
+    _ = make_tradeoff_heatmaps(args)
 
 
 if __name__ == "__main__":
