@@ -44,7 +44,7 @@ jobs:
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
-  gpt:
+  deepseek:
     needs: check
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
@@ -68,8 +68,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run analysis for GPT models
-        run: python -u -m main run --model gpt --output state/state.pkl
+      - name: Run analysis for Deepseek models
+        run: python -u -m main run --model deepseek --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -85,7 +85,7 @@ jobs:
           retention-days: 1
   
   claude:
-    needs: gpt
+    needs: deepseek
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
@@ -244,7 +244,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  deepseek:
+  gpt:
     needs: gemini
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
@@ -268,8 +268,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run analysis for Deepseek models
-        run: python -u -m main run --model deepseek --output state/state.pkl
+      - name: Run analysis for GPT models
+        run: python -u -m main run --model gpt --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
