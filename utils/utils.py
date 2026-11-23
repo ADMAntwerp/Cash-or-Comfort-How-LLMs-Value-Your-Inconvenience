@@ -893,7 +893,7 @@ def retrieve_latest_model(model_name, api_key):
                 query="gpt",
                 prefix="openai/",
                 version_pattern=r"gpt-(\d+(?:[.-]\d{1,2})?)-sol",
-                exclude=["batch"],
+                exclude=["batch", "pro"],
                 max_input_per_m=5,
                 max_output_per_m=15,
             )
