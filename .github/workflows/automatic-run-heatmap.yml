@@ -40,6 +40,7 @@ jobs:
         run: python -u -m main check
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -71,6 +72,7 @@ jobs:
         run: python -u -m main run --model gpt --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -110,6 +112,7 @@ jobs:
         run: python -u -m main run --model claude --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -149,6 +152,7 @@ jobs:
         run: python -u -m main run --model llama --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -188,6 +192,7 @@ jobs:
         run: python -u -m main run --model mixtral --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -227,6 +232,7 @@ jobs:
         run: python -u -m main run --model gemini --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -266,6 +272,7 @@ jobs:
         run: python -u -m main run --model deepseek --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
@@ -311,6 +318,7 @@ jobs:
         run: python -u -m main run --final --input incoming/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
