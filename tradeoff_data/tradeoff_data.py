@@ -10,7 +10,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def tradeoff_data(args, model = None, model_version=None, github_actions=False):
+def tradeoff_data(args, model_name=None, model_version=None, github_actions=False):
     """
     Main function to generate LLM's trade-off data.
     """
@@ -21,7 +21,7 @@ def tradeoff_data(args, model = None, model_version=None, github_actions=False):
             continue
         print(f"\t{key}: {value}")
 
-    model_dict = initialize_models(args, model=model, model_version=model_version, github_actions=github_actions)
+    model_dict = initialize_models(args, model=model_name, model_version=model_version, github_actions=github_actions)
     money_array, quant_array = money_quantity_trade_off(args)
 
     os.makedirs(args["output_dir"], exist_ok=True)
@@ -41,6 +41,8 @@ def tradeoff_data(args, model = None, model_version=None, github_actions=False):
             f'\n\t- {args["prompt_type"]}/money trade-off scenario'
         )
         experiment_outcomes = {}
+
+    log.info(f"Model dictionary: {model_dict}")
 
     # Run experiments
     for model_name, model in model_dict.items():

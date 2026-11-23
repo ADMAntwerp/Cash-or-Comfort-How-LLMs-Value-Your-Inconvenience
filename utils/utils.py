@@ -399,7 +399,7 @@ def combine_charts(args, plot_dir, max_cols=3):
     plt.close(fig)
 
 
-def initialize_models(args, model=None, model_version=None, github_actions=False):
+def initialize_models(args, model_name=None, model_version=None, github_actions=False):
     """
     Initialize LLM models based on command line arguments.
     Args:
@@ -458,15 +458,15 @@ def initialize_models(args, model=None, model_version=None, github_actions=False
     log.info(f"Models to run: {model_configs}")
     
     if github_actions:
-        model_configs[model]["model"] = model_version
+        model_configs[model_name]["model"] = model_version
 
     log.info(f"Models to run: {model_configs}")
 
     model_dict = {}
-    for model_name in args["models"]:
-        if model_name in model_configs:
-            config = model_configs[model_name]
-            model_dict[model_name] = config["class"](
+    for model in args["models"]:
+        if model in model_configs:
+            config = model_configs[model]
+            model_dict[model] = config["class"](
                 api_key=config["api_key"],
                 model=config["model"],
                 system_role=args["system_role"],
@@ -476,7 +476,7 @@ def initialize_models(args, model=None, model_version=None, github_actions=False
             )
 
         else:
-            print(f"Warning: Unknown model '{model_name}' requested. Skipping.")
+            print(f"Warning: Unknown model '{model}' requested. Skipping.")
 
     return model_dict
 

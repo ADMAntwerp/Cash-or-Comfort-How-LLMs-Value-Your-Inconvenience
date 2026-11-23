@@ -86,11 +86,13 @@ def run():
 
     args = load_config()
 
+    log.info(f"Loaded config: {args["models"]}")
+
     if github_actions:
         args["api_keys"]["OpenRouter"] = api_key_open_router
         args["api_keys"]["Huggingface"] = api_key_huggingface
         args["api_keys"]["OpenAI"] = api_key_open_ai
-        
+                
 
     state = load_state(ci_args.input)
     log.info("Loaded state with models: %s", list(state))
@@ -105,7 +107,7 @@ def run():
 
     model_version = retrieve_latest_model(ci_args.model, api_key_open_router)
 
-    result = tradeoff_data(args, model=ci_args.model, model_version=model_version, github_actions=github_actions)
+    result = tradeoff_data(args, model_name=ci_args.model, model_version=model_version, github_actions=github_actions)
 
     state.update(result)
 
