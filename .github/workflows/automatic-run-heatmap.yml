@@ -108,8 +108,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download state from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: state-1
+          path: state
+
       - name: Run analysis for Claude models
-        run: python -u -m main run --model claude --output state/state.pkl
+        run: python -u -m main run --model claude --input state/state.pkl --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -148,8 +154,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download state from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: state-2
+          path: state
+
       - name: Run analysis for Llama models
-        run: python -u -m main run --model llama --output state/state.pkl
+        run: python -u -m main run --model llama --input state/state.pkl --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -188,8 +200,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download state from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: state-3
+          path: state
+
       - name: Run analysis for Mixtral models
-        run: python -u -m main run --model mixtral --output state/state.pkl
+        run: python -u -m main run --model mixtral --input state/state.pkl --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -228,8 +246,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download state from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: state-4
+          path: state
+
       - name: Run analysis for Gemini models
-        run: python -u -m main run --model gemini --output state/state.pkl
+        run: python -u -m main run --model gemini --input state/state.pkl --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -268,8 +292,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download state from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: state-5
+          path: state
+
       - name: Run analysis for GPT models
-        run: python -u -m main run --model gpt --output state/state.pkl
+        run: python -u -m main run --model gpt --input state/state.pkl --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
