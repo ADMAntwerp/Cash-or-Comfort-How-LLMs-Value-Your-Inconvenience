@@ -3,6 +3,7 @@ Utils for LLM trade-offs scripts. API KEYS are removed.
 """
 
 import os
+from googleapiclient import model
 import numpy as np
 import pandas as pd
 import math
@@ -896,6 +897,8 @@ def retrieve_latest_model(model_name, api_key):
                 max_input_per_m=5,
                 max_output_per_m=15,
             )
+
+        model_version = model_version.split("openai/")[1]
         
         log.info(f"Latest model Open Router - GPT: {model_version}")
         log.info(f"Pricing per mio tokens: {price}")
