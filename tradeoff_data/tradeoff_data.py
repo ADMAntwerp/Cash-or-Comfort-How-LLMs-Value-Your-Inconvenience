@@ -21,7 +21,7 @@ def tradeoff_data(args, model_name=None, model_version=None, github_actions=Fals
             continue
         print(f"\t{key}: {value}")
 
-    model_dict = initialize_models(args, model=model_name, model_version=model_version, github_actions=github_actions)
+    model_dict = initialize_models(args, model_name=model_name, model_version=model_version, github_actions=github_actions)
     money_array, quant_array = money_quantity_trade_off(args)
 
     os.makedirs(args["output_dir"], exist_ok=True)
