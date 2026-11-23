@@ -44,7 +44,7 @@ jobs:
           API_KEY_OPEN_ROUTER: ${{ secrets.API_KEY_OPEN_ROUTER }}
           API_KEY_HUGGINGFACE: ${{ secrets.API_KEY_HUGGINGFACE }}
 
-  deepseek:
+  mistral:
     needs: check
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
@@ -68,8 +68,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run analysis for Deepseek models
-        run: python -u -m main run --model deepseek --output state/state.pkl
+      - name: Run analysis for Mistral models
+        run: python -u -m main run --model mistral --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -85,7 +85,7 @@ jobs:
           retention-days: 1
   
   claude:
-    needs: deepseek
+    needs: mixtral
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
@@ -176,7 +176,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  mixtral:
+  deepseek:
     needs: llama
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
@@ -206,8 +206,8 @@ jobs:
           name: state-3
           path: state
 
-      - name: Run analysis for Mixtral models
-        run: python -u -m main run --model mixtral --input state/state.pkl --output state/state.pkl
+      - name: Run analysis for Deepseek models
+        run: python -u -m main run --model deepseek --input state/state.pkl --output state/state.pkl
         env:
           API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -223,7 +223,7 @@ jobs:
           retention-days: 1
 
   gemini:
-    needs: mixtral
+    needs: deepseek
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
