@@ -92,7 +92,10 @@ def run():
         args["api_keys"]["OpenRouter"] = api_key_open_router
         args["api_keys"]["Huggingface"] = api_key_huggingface
         args["api_keys"]["OpenAI"] = api_key_open_ai
-                
+
+        args["models"] = [ci_args.model]
+
+    log.info(f"Loaded config: {args["models"]}")    
 
     state = load_state(ci_args.input)
     log.info("Loaded state with models: %s", list(state))
