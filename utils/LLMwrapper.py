@@ -83,29 +83,6 @@ class OpenRouterApi(LLMWrapper):
             kwargs = {"extra_body": {"provider": options}} if options else {}
 
             try:
-                original_send = self.client._client.send
-
-                def inspect_send(request, *args, **kwargs):
-
-                    auth = request.headers.get("authorization", "")
-
-                    scheme, separator, credential = auth.partition(" ")
-
-                    print("\n--- AUTHENTICATION INSPECTION ---")
-                    print("Authorization header exists:", bool(auth))
-                    print("Authentication scheme:", scheme)
-                    print("Bearer separator present:", bool(separator))
-                    print("Credential present:", bool(credential))
-                    print("Credential length:", len(credential))
-                    print("Starts with sk-or-:", credential.startswith("sk-or-"))
-                    print("Contains whitespace:", any(c.isspace() for c in credential))
-                    print("Contains Bearer prefix:", credential.lower().startswith("bearer "))
-                    print("---------------------------------\n")
-
-                    return original_send(request, *args, **kwargs)
-
-                self.client._client.send = inspect_send
-
                 completion = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
