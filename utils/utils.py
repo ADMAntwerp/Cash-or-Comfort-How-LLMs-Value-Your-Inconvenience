@@ -284,7 +284,7 @@ def make_heat_maps(args, df, model_name):
         title = "claude-sonnet-5-5"
     elif model_name == "llama":
         title = "llama-4-maverick"
-    elif model_name == "mixtral":
+    elif model_name == "mistral":
         title = "mistral-medium-3-5"
     elif model_name == "gemini":
         title = "gemini-3.5-flash-lite"
@@ -433,7 +433,7 @@ def initialize_models(args, model_name=None, model_version=None, github_actions=
             "providers": ["parasail/fp8"],
             "quantization_tiers": [["bf16", "fp16"], ["fp8"]]
         },
-        "mixtral": {
+        "mistral": {
             "class": OpenRouterApi,
             "api_key": keys_dict["OpenRouter"],
             "model": "mistralai/mistral-medium-3-5",

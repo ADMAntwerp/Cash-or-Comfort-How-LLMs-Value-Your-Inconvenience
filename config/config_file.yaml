@@ -33,14 +33,14 @@ args:
       - claude
       - llama
       - deepseek
-      - mixtral
+      - mistral
       - gemini
     choices:
       - gpt
       - claude
       - llama
       - deepseek
-      - mixtral
+      - mistral
       - gemini
     help: "List of models to run experiments on"
     value: ["claude"] # Put the model names inside the list (e.g. ["gpt", "claude"])
