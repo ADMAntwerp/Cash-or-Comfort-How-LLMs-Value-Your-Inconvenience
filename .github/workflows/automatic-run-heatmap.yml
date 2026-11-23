@@ -285,7 +285,7 @@ jobs:
           retention-days: 1
 
   upload_to_huggingface:
-    needs: deepseek
+    needs: gpt
     if: github.ref == 'refs/heads/feature/workflow'
     runs-on: ubuntu-latest
     timeout-minutes: 350

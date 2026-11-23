@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from httpx import options
+from httpx import options, request
 from joblib import logger
 from openai import OpenAI, APIConnectionError, APIStatusError, NotFoundError
 from openai._types import NOT_GIVEN
@@ -86,12 +86,21 @@ class OpenRouterApi(LLMWrapper):
                 original_send = self.client._client.send
 
                 def inspect_send(request, *args, **kwargs):
-                    print("\n--- HTTP REQUEST INSPECTION ---")
-                    print("URL:", request.url)
-                    print("Method:", request.method)
-                    print("Authorization header present:", "authorization" in request.headers)
-                    print("Content-Type:", request.headers.get("content-type"))
-                    print("-------------------------------\n")
+
+                    auth = request.headers.get("authorization", "")
+
+                    scheme, separator, credential = auth.partition(" ")
+
+                    print("\n--- AUTHENTICATION INSPECTION ---")
+                    print("Authorization header exists:", bool(auth))
+                    print("Authentication scheme:", scheme)
+                    print("Bearer separator present:", bool(separator))
+                    print("Credential present:", bool(credential))
+                    print("Credential length:", len(credential))
+                    print("Starts with sk-or-:", credential.startswith("sk-or-"))
+                    print("Contains whitespace:", any(c.isspace() for c in credential))
+                    print("Contains Bearer prefix:", credential.lower().startswith("bearer "))
+                    print("---------------------------------\n")
 
                     return original_send(request, *args, **kwargs)
 
