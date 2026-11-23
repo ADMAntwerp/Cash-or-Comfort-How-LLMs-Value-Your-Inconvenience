@@ -17,6 +17,11 @@ if not api_key_open_router:
     raise RuntimeError("API_KEY_OPEN_ROUTER is not set")
 
 
+api_key_open_ai = os.environ.get("OPENAI_API_KEY")
+if not api_key_open_ai:
+    raise RuntimeError("OPENAI_API_KEY is not set")
+
+
 github_actions = True
 
 
@@ -82,8 +87,10 @@ def run():
     args = load_config()
 
     if github_actions:
-        args["api_keys"]["open_router"] = api_key_open_router
-        args["api_keys"]["huggingface"] = api_key_huggingface
+        args["api_keys"]["OpenRouter"] = api_key_open_router
+        args["api_keys"]["Huggingface"] = api_key_huggingface
+        args["api_keys"]["OpenAI"] = api_key_open_ai
+        
 
     state = load_state(ci_args.input)
     log.info("Loaded state with models: %s", list(state))
