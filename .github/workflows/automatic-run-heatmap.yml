@@ -85,7 +85,7 @@ jobs:
           retention-days: 1
   
   claude:
-    needs: mixtral
+    needs: mistral
     if: github.ref == 'refs/heads/feature/workflow' && needs.check.outputs.run_is_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 350
