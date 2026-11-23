@@ -407,7 +407,7 @@ def initialize_models(args, model_name=None, model_version=None, github_actions=
     Returns:
         dict: Dictionary of initialized model instances
     """
-    args = load_config()
+    # args = load_config()
     keys_dict = args.get("api_keys", {})
 
     model_configs = {

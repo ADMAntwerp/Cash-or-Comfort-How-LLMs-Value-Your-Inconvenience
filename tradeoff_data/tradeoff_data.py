@@ -21,6 +21,8 @@ def tradeoff_data(args, model_name=None, model_version=None, github_actions=Fals
             continue
         print(f"\t{key}: {value}")
 
+    log.info(f"Arguments in use: {args}")
+
     model_dict = initialize_models(args, model_name=model_name, model_version=model_version, github_actions=github_actions)
     money_array, quant_array = money_quantity_trade_off(args)
 
