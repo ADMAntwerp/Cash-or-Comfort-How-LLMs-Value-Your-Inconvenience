@@ -83,6 +83,20 @@ class OpenRouterApi(LLMWrapper):
             kwargs = {"extra_body": {"provider": options}} if options else {}
 
             try:
+                original_send = self.client._client.send
+
+                def inspect_send(request, *args, **kwargs):
+                    print("\n--- HTTP REQUEST INSPECTION ---")
+                    print("URL:", request.url)
+                    print("Method:", request.method)
+                    print("Authorization header present:", "authorization" in request.headers)
+                    print("Content-Type:", request.headers.get("content-type"))
+                    print("-------------------------------\n")
+
+                    return original_send(request, *args, **kwargs)
+
+                self.client._client.send = inspect_send
+
                 completion = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
