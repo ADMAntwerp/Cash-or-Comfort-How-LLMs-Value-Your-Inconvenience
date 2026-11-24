@@ -62,7 +62,7 @@ def run_model(name, cfg):
     log.info("Running model %s", name)
     return [cfg["args"]["models"]["value"], date.today().strftime("%Y-%m")]
 
-
+"""
 def check_if_run_is_needed():
     log.info("check_if_run_is_needed() started")
     
@@ -70,7 +70,26 @@ def check_if_run_is_needed():
 
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:
         f.write(f"run_is_needed={'true' if run_is_needed else 'false'}\n")
+"""
 
+def check_if_run_is_needed():
+    log.info("CHECK 1: Function started")
+
+    log.info("CHECK 2: Before Hugging Face call")
+
+    exists = heatmap_exists_for_current_month(api_key_huggingface)
+
+    log.info("CHECK 3: After Hugging Face call")
+    log.info("Heatmap exists: %s", exists)
+
+    run_is_needed = not exists
+
+    log.info("CHECK 4: Run needed: %s", run_is_needed)
+
+    with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+        f.write(f"run_is_needed={'true' if run_is_needed else 'false'}\n")
+
+    log.info("CHECK 5: Output written")
 
 def run():
     log.info("main() started")
