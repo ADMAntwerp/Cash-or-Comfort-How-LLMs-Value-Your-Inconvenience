@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from datetime import date
 from tradeoff_data.tradeoff_data import tradeoff_data
-from utils.utils import retrieve_latest_model, load_config, push_image_to_huggingface
+from utils.utils import retrieve_latest_model, load_config, push_image_to_huggingface, heatmap_exists_for_current_month
 from tradeoff_heatmaps.heatmaps import make_tradeoff_heatmaps
 
 
@@ -66,8 +66,7 @@ def run_model(name, cfg):
 def check_if_run_is_needed():
     log.info("check_if_run_is_needed() started")
     
-    # run_is_needed = not heatmap_exists_for_current_month(api_key_huggingface)
-    run_is_needed = True
+    run_is_needed = not heatmap_exists_for_current_month(api_key_huggingface)
 
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:
         f.write(f"run_is_needed={'true' if run_is_needed else 'false'}\n")
